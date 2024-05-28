@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# prevents security issues with uploading any important keys to github
+.env  
