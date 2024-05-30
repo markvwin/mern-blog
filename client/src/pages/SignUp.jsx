@@ -1,8 +1,46 @@
-import { Button, Label, TextInput } from "flowbite-react";
+import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  // initializing the components
+  const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false); // adds loading mechanism on sign-up
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.username || !formData.email || !formData.password) {
+      return setErrorMessage("Please fill out all fields");
+    }
+    try {
+      setLoading(true);
+      setErrorMessage(null); // if there was an error in the previous request, resets state
+      const res = await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData), // converts JSON data to string before sending
+      });
+      const data = await res.json(); // converting response into JSON format
+      if (data.success === false) {
+        return setErrorMessage(data.message); // returns error message when a duplicate username/email is submitted
+      }
+      setLoading(false); // stops loading after processing is complete
+      if (res.ok) {
+        navigate("/sign-in");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false); // stops loading animation when error is encountered
+    }
+  };
+
   return (
     <div className="min-h-screen mt-20">
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
@@ -21,22 +59,47 @@ export default function SignUp() {
         </div>
         {/* right */}
         <div className="flex-1">
-          <form className="flex flex-col gap-4">
-            <div>
-              <TextInput type="text" placeholder="Username" id="username" />
-            </div>
+          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div>
               <TextInput
                 type="text"
-                placeholder="name@company.com"
-                id="email"
+                placeholder="Username"
+                id="username"
+                onChange={handleChange}
               />
             </div>
             <div>
-              <TextInput type="text" placeholder="Password" id="password" />
+              <TextInput
+                type="email"
+                placeholder="name@company.com"
+                id="email"
+                onChange={handleChange}
+              />
             </div>
-            <Button gradientDuoTone="purpleToPink" type="submit">
-              Sign Up
+            <div>
+              <TextInput
+                type="password"
+                placeholder="Password"
+                id="password"
+                onChange={handleChange}
+              />
+            </div>
+            <Button // renders submit button and disables it when the user submits form
+              gradientDuoTone="purpleToPink"
+              type="submit"
+              disabled={loading}
+            >
+              {
+                // because we are adding more than one http element, we need to wrap them in a empty fragment
+                loading ? ( // displays loading animation via the spinner component
+                  <>
+                    <Spinner size="sm" />
+                    <span className="pl-3">Loading...</span>
+                  </>
+                ) : (
+                  "Sign Up"
+                ) // if loading is true, displays "Loading..." otherwise default to "Sign Up"
+              }
             </Button>
           </form>
           <div className="flex gap-2 text-sm mt-5">
@@ -45,6 +108,11 @@ export default function SignUp() {
               Sign In
             </Link>
           </div>
+          {errorMessage && ( // displays an error alert if there is an error upon sign-up
+            <Alert className="mt-5" color="failure">
+              {errorMessage}
+            </Alert>
+          )}
         </div>
       </div>
     </div>
