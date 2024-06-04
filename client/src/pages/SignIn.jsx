@@ -2,12 +2,27 @@ import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../app/user/userSlice";
 
 export default function SignIn() {
   // initializing the components
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false); // adds loading mechanism on sign-up
+
+  /*
+  The useSelector hook from the Redux store accesses the 'user' slice from the 
+  global state. By providing a selector function as an argument, which takes the entire 
+  state as its parameter, we can specifically extract the 'loading' and 'error' properties 
+  from the 'user' slice. 
+  */
+
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
+  const dispatch = useDispatch(); // allows us to dispatch actions to the store
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,11 +32,11 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all fields");
+      return dispatch(signInFailure("Please fill out all fields"));
     }
+
     try {
-      setLoading(true);
-      setErrorMessage(null); // if there was an error in the previous request, resets state
+      dispatch(signInStart()); // sets state.loading to true and state.error to null
       const res = await fetch("/api/auth/sign-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -29,15 +44,14 @@ export default function SignIn() {
       });
       const data = await res.json(); // converting response into JSON format
       if (data.success === false) {
-        return setErrorMessage(data.message); // returns error message when a duplicate username/email is submitted
+        dispatch(signInFailure(data.message)); // error message if a duplicate username/email
       }
-      setLoading(false); // stops loading after processing is complete
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false); // stops loading animation when error is encountered
+      dispatch(signInFailure(error.message));
     }
   };
 
