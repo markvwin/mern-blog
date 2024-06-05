@@ -72,3 +72,43 @@ export const signin = async (req, res, next) => {
     next(error); // responds with an error message if sign in fails. next() is a middleware function used for passing messages.
   }
 };
+
+export const google = async (req, res, next) => {
+  const { email, name, googlePhotoURL } = req.body;
+
+  try {
+    const user = await User.findOne({ email }); // checks if the user exists in the database.
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = user._doc; // removes the password from the response.,...rest } = user._doc; // removes the password from the response.
+      res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json(rest);
+    } else {
+      const generatedPassword = Math.random().toString(36).slice(8);
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10); // hashes user passwords
+      const newUser = new User({
+        username:
+          name.toLowerCase().split(" ").join("") +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashedPassword,
+        profilePicture: googlePhotoURL,
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = newUser._doc; // removes the password from the response.
+      res
+        .status(200)
+        .cookie("access_token", token, { httpOnly: true })
+        .json(rest);
+    }
+  } catch (error) {
+    next(error); // responds with an error message if sign in fails. next() is a middleware function
+  }
+
+  if (!email || email === "") {
+    next(errorHandler(400, "All fields are required"));
+  }
+};

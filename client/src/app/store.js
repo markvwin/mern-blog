@@ -25,14 +25,16 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-const currentState = store.getState();
+/* Code for test redux_persist funcationality */
 
-// Inspect the state object to check for the presence of the _persist key
-if ("_persist" in currentState) {
-  console.log("Redux Persist is working correctly!");
-} else {
-  console.log("Redux Persist might not be configured correctly.");
-}
+// const currentState = store.getState();
 
-// You can also log the entire state object for further inspection
-console.log("Current Redux Store State:", currentState);
+// // Inspect the state object to check for the presence of the _persist key
+// if ("_persist" in currentState) {
+//   console.log("Redux Persist is working correctly!");
+// } else {
+//   console.log("Redux Persist might not be configured correctly.");
+// }
+
+// // You can also log the entire state object for further inspection
+// console.log("Current Redux Store State:", currentState);

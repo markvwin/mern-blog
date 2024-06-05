@@ -8,6 +8,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "../app/user/userSlice";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   // initializing the components
@@ -112,6 +113,7 @@ export default function SignIn() {
                 ) // if loading is true, displays "Loading..." otherwise default to "Sign Up"
               }
             </Button>
+            <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Don't have an account?</span>
