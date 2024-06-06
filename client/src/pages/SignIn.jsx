@@ -74,7 +74,7 @@ export default function SignIn() {
         </div>
         {/* right */}
 
-        <div className="flex-1 max-w-3xl mx-auto p-10 rounded-lg border border-gray-300 bg-white shadow-xl">
+        <div className="flex-1">
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <Label
               className="flex-auto font-semibold text-xl"
