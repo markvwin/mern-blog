@@ -42,6 +42,19 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload; // action.payload is the error object
     },
+    updateStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateSuccess: (state, action) => {
+      state.currentUser = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+    updateFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -51,7 +64,14 @@ Destructuring the `actions` object from the `userSlice` slice created using
 action creators signInFailure, signInStart, and signInSuccess so that they 
 can be easily imported and dispatched in other parts of the application.
 */
-export const { signInFailure, signInStart, signInSuccess } = userSlice.actions;
+export const {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+  updateStart,
+  updateFailure,
+  updateSuccess,
+} = userSlice.actions;
 
 /*
   Exporting the reducer function from the `userSlice` slice created using 
