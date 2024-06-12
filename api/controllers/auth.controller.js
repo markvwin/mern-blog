@@ -60,7 +60,10 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(400, "Invalid password"));
     }
 
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const token = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      process.env.JWT_SECRET
+    );
 
     const { password: pass, ...rest } = validUser._doc; // removes the password from the response.
 
@@ -79,7 +82,10 @@ export const google = async (req, res, next) => {
   try {
     const user = await User.findOne({ email }); // checks if the user exists in the database.
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = user._doc; // removes the password from the response.,...rest } = user._doc; // removes the password from the response.
       res
         .status(200)
@@ -97,7 +103,10 @@ export const google = async (req, res, next) => {
         profilePicture: googlePhotoURL,
       });
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = newUser._doc; // removes the password from the response.
       res
         .status(200)
